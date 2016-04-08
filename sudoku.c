@@ -1,3 +1,5 @@
+// Copyright Ben Greene 2015
+
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
@@ -9,14 +11,14 @@
 
 #define LINELEN 20
 
-// Define funcs
+// Define functions
 void print_board();
 
 int board[9][9];
 int chunk;
 
 int main(int argc, char **argv){
-	// All the vars we need
+	// All the variables we need
 	char buffer[LINELEN];
 	int len;
 	int line_on = 0;
@@ -32,10 +34,7 @@ int main(int argc, char **argv){
 			exit(127);
 		}
 	}else{
-		dprintf(1, "Please enter the lines of the sudoku one at a time.");
-		// Sorry if this comes across as.... churlish....
-		dprintf(1, "This functionality hasn't been added in yet, sorry\n");
-		exit(127);
+		dprintf(1, "Please enter the sudoku board:\n");
 	}
 
 	// This is the sudoku map setup. We populate the board using a file or user input
@@ -44,7 +43,6 @@ int main(int argc, char **argv){
 			dprintf(1, "%% ");
 		}
 		if (fgets(buffer, LINELEN, fp) != buffer){
-			// End of line, kid
 			break;
 		}
 		len = strlen(buffer);
@@ -52,15 +50,26 @@ int main(int argc, char **argv){
 		int a;
 		for(a = 0; a < len; a++){
 			char c = buffer[a];
-			if(isdigit(c)){
+			if(isdigit(c) && !isalpha(c)){
 				board[line_on][p_on] = c - '0';
 				p_on++;
 				if(p_on > 8){
 					line_on ++;
 					break;
 				}
+			}else if(c != ' ' && c != '\n'){
+				if(line_on == 8){
+					dprintf(2, "Your board hasn't been formatted properly, please check your board.\n");
+					exit(127);
+				}
+				dprintf(1, "Invalid line, please enter a new line\n");
 			}
-		}	
+		}
+	}
+
+	if(argc > 1 && line_on < 9){
+		dprintf(2, "Your board hasn't been formatted properly, please check your board.\n");
+		exit(127);
 	}
 	
 	// This is where we actually solve the sudoku
